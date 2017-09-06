@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket</title>
+    <script type="text/javascript" src="//cdn.jsdeliver.net/jquery/2.2.0/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdeliver.net/sockjs/1.0.3/sockjs.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        #overlay {
+            position: fixed; /* Sit on top of the page content */
+            display: none; /* Hidden by default */
+            width: 100%; /* Full width (cover the whole page) */
+            height: 100%; /* Full height (cover the whole page) */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9); /* Black background with opacity */
+            z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+            cursor: pointer; /* Add a pointer on hover */
+        }
+    </style>
+</head>
+<body>
+<div>
+
+    <h3>Messages:</h3>
+    <ol id="messages"></ol>
+
+</div>
+<div id="overlay"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var messageList = $("#messages");
+        var socket = new SockJS('/stomp');
+        var stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe("/topic/message", function (data) {
+                var message = data.body;
+
+                messageList.append("<li>" + message + "<img src='http://s3.envato.com/files/224801781/screenshots/00-screenshot.__large_preview.jpg'/></li>");
+
+                if (message.indexOf('session_block') !== -1) {
+                    
+                    document.getElementById("overlay").style.display = "block";
+                    console.log(message)
+                } else if (message.indexOf('session_unblock') !== -1) {
+                    document.getElementById("overlay").style.display = "none";
+                }
+            });
+
+        });
+    });
+</script>
+
+</body>
+</html>
